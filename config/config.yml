@@ -1,0 +1,168 @@
+---
+# Container descriptor
+- descriptor: "pip-services:context-info:default:default:1.0"
+  name: "iqs-bundles-users-node"
+  description: "Microservice for deploying users pip-services microservices"
+
+# Console logger
+- descriptor: "pip-services:logger:console:default:1.0"
+  level: "trace"
+
+# Performance counters that posts values to log
+- descriptor: "pip-services:counters:log:default:1.0"
+  level: "trace"
+
+# AWS logging component
+- descriptor: "pip-services:logger:cloudwatch:default:1.0"
+  level: "info"
+  group: "{{ENV_NAME}}"
+  connection:
+    region: "{{{AWS_REGION}}}"
+  credential:
+    access_id: "{{{AWS_ACCESS_ID}}}"
+    access_key: "{{{AWS_ACCESS_KEY}}}"
+
+# AWS metrics component
+- descriptor: "pip-services:counters:cloudwatch:default:1.0"
+  level: "info"
+  connection:
+    region: "{{{AWS_REGION}}}"
+  credential:
+    access_id: "{{{AWS_ACCESS_ID}}}"
+    access_key: "{{{AWS_ACCESS_KEY}}}"
+
+# Common HTTP endpoint
+- descriptor: "pip-services:endpoint:http:default:1.0"
+  connection:
+    protocol: "http"
+    host: "0.0.0.0"
+    port: 8080
+
+# Heartbeat service
+- descriptor: "pip-services:heartbeat-service:http:default:1.0"
+
+# Status service
+- descriptor: "pip-services:status-service:http:default:1.0"
+
+# Discovery service
+- descriptor: "pip-services:discovery:memory:default:*"
+  mongodb: "uri={{{MONGO_SERVICE_URI}}};host={{{MONGO_SERVICE_HOST}}};port={{{MONGO_SERVICE_PORT}}};database={{{MONGO_DB}}}"
+
+############## Content components ##############
+
+# Message templates components
+- descriptor: "pip-services-msgtemplates:client:http:default:*"
+  connection:
+    protocol: "http"
+    host: "{{{IQS_GROUPS_CONTENT_SERVICE_HOST}}}"
+    port: {{IQS_GROUPS_CONTENT_SERVICE_PORT}}
+  options:
+    connect_timeout: 10000
+    timeout: 10000
+    retries: 3
+
+############## Infrastructure components ##############
+
+# Email components
+- descriptor: "pip-services-email:client:http:default:*"
+  connection:
+    protocol: "http"
+    host: "{{{IQS_GROUPS_INFRASTRUCTURE_SERVICE_HOST}}}"
+    port: {{IQS_GROUPS_INFRASTRUCTURE_SERVICE_PORT}}
+  options:
+    connect_timeout: 10000
+    timeout: 10000
+    retries: 3
+
+# Sms component
+- descriptor: "pip-services-sms:client:http:default:*"
+  connection:
+    protocol: "http"
+    host: "{{{IQS_GROUPS_INFRASTRUCTURE_SERVICE_HOST}}}"
+    port: {{IQS_GROUPS_INFRASTRUCTURE_SERVICE_PORT}}
+  options:
+    connect_timeout: 10000
+    timeout: 10000
+    retries: 3
+    
+############## UsersBundle components ##############
+
+# Activities components
+- descriptor: "pip-services-activities:persistence:mongodb:default:*"
+  connection:
+    discovery_key: mongodb
+- descriptor: "pip-services-activities:controller:default:default:*"
+- descriptor: "pip-services-activities:client:direct:default:*"
+- descriptor: "pip-services-activities:service:http:default:*"
+
+# Roles components
+- descriptor: "pip-services-roles:persistence:mongodb:default:*"
+  connection:
+    discovery_key: mongodb
+- descriptor: "pip-services-roles:controller:default:default:*"
+- descriptor: "pip-services-roles:client:direct:default:*"
+- descriptor: "pip-services-roles:service:http:default:*"
+
+# Passwords components
+- descriptor: "pip-services-passwords:persistence:mongodb:default:*"
+  connection:
+    discovery_key: mongodb
+- descriptor: "pip-services-passwords:controller:default:default:*"
+  options:
+    magic_code: "{{{MAGIC_CODE}}}"
+  message_templates:
+    recover_password:
+      template: recover_password
+    account_locked:
+      template: account_locked
+    password_changed:
+      template: password_changed
+- descriptor: "pip-services-passwords:client:direct:default:*"
+- descriptor: "pip-services-passwords:service:http:default:*"
+
+# Accounts components
+- descriptor: "pip-services-accounts:persistence:mongodb:default:*"
+  connection:
+    discovery_key: mongodb
+- descriptor: "pip-services-accounts:controller:default:default:*"
+- descriptor: "pip-services-accounts:client:direct:default:*"
+- descriptor: "pip-services-accounts:service:http:default:*"
+
+# Sessions components
+- descriptor: "pip-services-sessions:persistence:mongodb:default:*"
+  connection:
+    discovery_key: mongodb
+- descriptor: "pip-services-sessions:controller:default:default:*"
+- descriptor: "pip-services-sessions:client:direct:default:*"
+- descriptor: "pip-services-sessions:service:http:default:*"
+
+# Message distribution components
+- descriptor: "pip-services-msgdistribution:controller:default:default:*"
+- descriptor: "pip-services-msgdistribution:client:direct:default:*"
+- descriptor: "pip-services-msgdistribution:service:http:default:*"
+
+# Sms settings components
+- descriptor: "pip-services-smssettings:persistence:mongodb:default:*"
+  connection:
+    discovery_key: mongodb
+- descriptor: "pip-services-smssettings:controller:default:default:*"
+  options:
+    magic_code: "{{{MAGIC_CODE}}}"
+  message_templates:
+    verify_phone:
+      template: verify_phone
+- descriptor: "pip-services-smssettings:client:direct:default:*"
+- descriptor: "pip-services-smssettings:service:http:default:*"
+
+# Email settings components
+- descriptor: "pip-services-emailsettings:persistence:mongodb:default:*"
+  connection:
+    discovery_key: mongodb
+- descriptor: "pip-services-emailsettings:controller:default:default:*"
+  options:
+    magic_code: "{{{MAGIC_CODE}}}"
+  message_templates:
+    verify_email:
+      template: verify_email
+- descriptor: "pip-services-emailsettings:client:direct:default:*"
+- descriptor: "pip-services-emailsettings:service:http:default:*"
